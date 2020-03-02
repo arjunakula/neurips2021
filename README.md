@@ -217,4 +217,3 @@ python scripts/run_model.py \
   --result_output_path ./data/result.json \
   --use_gt_programs 1
 ```
-# clever-ref-_NeurIPS
