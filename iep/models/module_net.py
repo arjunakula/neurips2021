@@ -14,8 +14,9 @@ from torch.autograd import Variable
 import torchvision.models
 import numpy as np
 
-from iep.models.layers import ResidualBlock, GlobalAveragePool, Flatten
+from iep.models.layers import ResidualBlock, ResidualBlock_LangAttention, GlobalAveragePool, Flatten
 import iep.programs
+import torchtext
 
 
 class ConcatBlock(nn.Module):
@@ -108,7 +109,7 @@ class ModuleNet(nn.Module):
     if verbose:
       print('Here is my stem:')
       print(self.stem)
-
+    self.glove = torchtext.vocab.GloVe(name="6B", dim=50)   # embedding size = 50
     module_H, module_W = feature_dim[1], feature_dim[2]
     self.classifier = build_classifier(module_dim, module_H, module_W, 
                                        classifier_fc_layers,
@@ -139,7 +140,7 @@ class ModuleNet(nn.Module):
         continue;
       
       num_inputs = iep.programs.get_num_inputs(fn_str)
-      self.function_modules_num_inputs[fn_str] = num_inputs
+      self.function_modules_num_inputs[fn_str.split("[")[0]] = num_inputs
       #FIXME:
       # if fn_str == 'scene' or num_inputs == 1:
       #   mod = ResidualBlock(module_dim,
@@ -247,15 +248,18 @@ class ModuleNet(nn.Module):
     j += 1
     #FIXME:
     #module = self.function_modules[fn_str]
-    module = self.function_modules[(fn_str.split("[")[0]]
+    module = self.function_modules[fn_str.split("[")[0]]
     if fn_str == 'scene':
       module_inputs = [feats[i:i+1]]
     else:
-      num_inputs = self.function_modules_num_inputs[fn_str]
+      num_inputs = self.function_modules_num_inputs[fn_str.split("[")[0]]
       module_inputs = []
       while len(module_inputs) < num_inputs:
         cur_input, j = self._forward_modules_ints_helper(feats, program, i, j)
         module_inputs.append(cur_input)
+      if(len(fn_str.split("[")) >= 2):
+        lang_txt_inp = fn_str.split("[")[1][:-1]
+        module_inputs.append(self.glove[lang_txt_inp])
     module_output = module(*module_inputs)
     return module_output, j
 

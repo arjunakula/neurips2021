@@ -543,7 +543,6 @@ def get_program_generator(args):
   pg.train()
   return pg, kwargs
 
-
 def get_execution_engine(args):
   vocab = utils.load_vocab(args.vocab_json)
   if args.execution_engine_start_from is not None:
