@@ -128,21 +128,49 @@ class ModuleNet(nn.Module):
     self.function_modules = {}
     self.function_modules_num_inputs = {}
     self.vocab = vocab
+
+    
     print("vocab['program_token_to_idx']={}".format(vocab['program_token_to_idx']))
     for fn_str in vocab['program_token_to_idx']:
       fn_str = str(fn_str)
+
+      #FIXME: me
+      if (fn_str.split("[")[0] in self.function_modules):
+        continue;
+      
       num_inputs = iep.programs.get_num_inputs(fn_str)
       self.function_modules_num_inputs[fn_str] = num_inputs
-      if fn_str == 'scene' or num_inputs == 1:
+      #FIXME:
+      # if fn_str == 'scene' or num_inputs == 1:
+      #   mod = ResidualBlock(module_dim,
+      #           with_residual=module_residual,
+      #           with_batchnorm=module_batchnorm)
+      # elif num_inputs == 2:
+      #   mod = ConcatBlock(module_dim,
+      #           with_residual=module_residual,
+      #           with_batchnorm=module_batchnorm)
+      if fn_str == 'scene':
         mod = ResidualBlock(module_dim,
+                with_residual=module_residual,
+                with_batchnorm=module_batchnorm)
+      elif num_inputs == 1 and len(fn_str.split("[")) < 2:
+        mod = ResidualBlock(module_dim,
+                with_residual=module_residual,
+                with_batchnorm=module_batchnorm)
+      elif num_inputs == 1 and len(fn_str.split("[")) >= 2:
+        mod = ResidualBlock_LangAttention(module_dim,
                 with_residual=module_residual,
                 with_batchnorm=module_batchnorm)
       elif num_inputs == 2:
         mod = ConcatBlock(module_dim,
                 with_residual=module_residual,
                 with_batchnorm=module_batchnorm)
-      self.add_module(fn_str, mod)
-      self.function_modules[fn_str] = mod
+
+      #FIXME: me
+      #self.add_module(fn_str, mod)
+      #self.function_modules[fn_str] = mod
+      self.add_module(fn_str.split("[")[0], mod)
+      self.function_modules[fn_str.split("[")[0]] = mod
 
     self.save_module_outputs = False
 
@@ -183,7 +211,9 @@ class ModuleNet(nn.Module):
       module_outputs = []
       for j, f in enumerate(program[i]):
         f_str = iep.programs.function_to_str(f)
-        module = self.function_modules[f_str]
+        #FIXME:
+        #module = self.function_modules[f_str]
+        module = self.function_modules[f_str.split("[")[0]]
         if f_str == 'scene':
           module_inputs = [feats[i:i+1]]
         else:
@@ -215,7 +245,9 @@ class ModuleNet(nn.Module):
     if used_fn_j:
       self.used_fns[i, j] = 1
     j += 1
-    module = self.function_modules[fn_str]
+    #FIXME:
+    #module = self.function_modules[fn_str]
+    module = self.function_modules[(fn_str.split("[")[0]]
     if fn_str == 'scene':
       module_inputs = [feats[i:i+1]]
     else:
