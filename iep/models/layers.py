@@ -41,7 +41,7 @@ class ResidualBlock(nn.Module):
       out = F.relu(out)
     return out
 
-#FIXME: 
+#FIXME: x: 1X128X20X20, q:1X50, W:50X128 ... Wq-> 1X128 --> 1X128X1X1
 class ResidualBlock_LangAttention(nn.Module):
   def __init__(self, in_dim, out_dim=None, with_residual=True, with_batchnorm=True, q_dim=50):
     if out_dim is None:
