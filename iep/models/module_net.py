@@ -272,8 +272,10 @@ class ModuleNet(nn.Module):
             flag = 1
           else:
             txt_vec = txt_vec + self.glove[wrd]
-
-        module_inputs.append(txt_vec)
+        if(flag == 1):
+          module_inputs.append(txt_vec)
+        else:
+          module_inputs.append(self.glove['NULL'])
     module_output = module(*module_inputs)
     return module_output, j
 
