@@ -17,6 +17,7 @@ import numpy as np
 from iep.models.layers import ResidualBlock, ResidualBlock_LangAttention, GlobalAveragePool, Flatten
 import iep.programs
 import torchtext
+import re
 
 
 class ConcatBlock(nn.Module):
@@ -259,7 +260,20 @@ class ModuleNet(nn.Module):
         module_inputs.append(cur_input)
       if(len(fn_str.split("[")) >= 2):
         lang_txt_inp = fn_str.split("[")[1][:-1]
-        module_inputs.append(self.glove[lang_txt_inp])
+        lang_txt_inp_list = re.split('[, ;\'"?\.!()]',lang_txt_inp.strip())
+        flag = 0
+        txt_vec = ""
+        for l_i in range(0, len(lang_txt_inp_list)):
+          wrd = lang_txt_inp_list[l_i].strip()
+          if(len(wrd) == 0):
+            continue
+          if flag == 0:
+            txt_vec = self.glove[wrd]
+            flag = 1
+          else:
+            txt_vec = txt_vec + self.glove[wrd]
+
+        module_inputs.append(txt_vec)
     module_output = module(*module_inputs)
     return module_output, j
 

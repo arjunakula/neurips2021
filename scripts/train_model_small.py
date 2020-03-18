@@ -698,7 +698,7 @@ if __name__ == '__main__':
   args.num_iterations = 150000
   args.learning_rate = 1e-4
   args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/execution_engine.pt"
-  args.checkpoint_every = 1000
+  args.checkpoint_every = 10000
   args.train_refexp_h5 = "data/small_dataset/train_refexps.h5"
   args.train_features_h5 = "data/train_features.h5"
   args.val_refexp_h5 = "data/small_dataset/val_refexps.h5"
@@ -714,11 +714,15 @@ if __name__ == '__main__':
   # mar 16 2020: after adding lang attention 
   # training accuracies
   # now IoU = 0.71963, cumulative IoU = 0.545952
-  # testing accuracies
-  # 
-
+  # testing accuracies  on full val_singleobject set
+  # 26.67%
+  #=============
   # mar 16 2020: without adding lang attention 
   # training accuracies
-  # now IoU = 0.71963, cumulative IoU = 0.545952
-  # testing accuracies on full val set
-  # 26.67%
+  # now IoU = 92.9, cumulative IoU = 82.06
+  # testing accuracies on full val_singleobject set
+  # 42.2%
+  #==============
+  
+
+
