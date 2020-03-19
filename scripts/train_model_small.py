@@ -710,19 +710,29 @@ if __name__ == '__main__':
   main(args)
   ###
   ###Results####
-
   # mar 16 2020: after adding lang attention 
   # training accuracies
-  # now IoU = 0.71963, cumulative IoU = 0.545952
+  # cumulative IoU = 0.545952
   # testing accuracies  on full val_singleobject set
   # 26.67%
   #=============
   # mar 16 2020: without adding lang attention 
   # training accuracies
-  # now IoU = 92.9, cumulative IoU = 82.06
+  # cumulative IoU = 82.06
   # testing accuracies on full val_singleobject set
-  # 42.2%
+  # 41.1%
   #==============
-
-
-
+  # mar 18 2020: after adding lang attention correctly (especially taking sum of all word vectors in input text)
+  # data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_lang_attention.pt_150000
+  # training accuracies
+  # cumulative IoU = 72.34
+  # testing accuracies on full val_singleobject set
+  # 41.4%
+  #==============
+   # mar 19 2020: after adding original query as input along with lang attention
+  # data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_lang_attention.pt_150000
+  # training accuracies
+  # cumulative IoU = 67.78
+  # testing accuracies on full val_singleobject set
+  # 40.04%
+  #===============
