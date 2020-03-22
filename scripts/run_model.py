@@ -274,9 +274,9 @@ def run_our_model_batch(args, program_generator, execution_engine, loader, dtype
                         temperature=args.temperature,
                         argmax=(args.sample_argmax == 1))
     if args.use_gt_programs == 1:
-      scores = execution_engine(feats_var, program_lists)
+      scores = execution_engine(feats_var, program_lists, refexps_var)
     else:
-      scores = execution_engine(feats_var, programs_pred)
+      scores = execution_engine(feats_var, programs_pred, refexps_var)
 
     preds = scores.clone()
 

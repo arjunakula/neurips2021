@@ -111,6 +111,7 @@ class ModuleNet(nn.Module):
       print('Here is my stem:')
       print(self.stem)
     self.glove = torchtext.vocab.GloVe(name="6B", dim=50)   # embedding size = 50
+    
     module_H, module_W = feature_dim[1], feature_dim[2]
     self.classifier = build_classifier(module_dim, module_H, module_W, 
                                        classifier_fc_layers,
@@ -195,7 +196,7 @@ class ModuleNet(nn.Module):
     final_linear.bias.data = new_bias
 
 
-  def _forward_modules_json(self, feats, program):
+  def _forward_modules_json(self, feats, program,refs):
     def gen_hook(i, j):
       def hook(grad):
         self.all_module_grad_outputs[i][j] = grad.data.cpu().clone()
@@ -229,7 +230,7 @@ class ModuleNet(nn.Module):
     return final_module_outputs
 
 
-  def _forward_modules_ints_helper(self, feats, program, i, j):
+  def _forward_modules_ints_helper(self, feats, program, i, j,refs):
     used_fn_j = True
     if j < program.size(1):
       fn_idx = program.data[i, j]
@@ -243,7 +244,7 @@ class ModuleNet(nn.Module):
       fn_str = 'scene'
     elif fn_str == '<START>':
       used_fn_j = False
-      return self._forward_modules_ints_helper(feats, program, i, j + 1)
+      return self._forward_modules_ints_helper(feats, program, i, j + 1, refs)
     if used_fn_j:
       self.used_fns[i, j] = 1
     j += 1
@@ -256,7 +257,7 @@ class ModuleNet(nn.Module):
       num_inputs = self.function_modules_num_inputs[fn_str.split("[")[0]]
       module_inputs = []
       while len(module_inputs) < num_inputs:
-        cur_input, j = self._forward_modules_ints_helper(feats, program, i, j)
+        cur_input, j = self._forward_modules_ints_helper(feats, program, i, j, refs)
         module_inputs.append(cur_input)
       if(len(fn_str.split("[")) >= 2):
         lang_txt_inp = fn_str.split("[")[1][:-1]
@@ -276,11 +277,30 @@ class ModuleNet(nn.Module):
           module_inputs.append(txt_vec)
         else:
           module_inputs.append(self.glove['NULL'])
+    if(len(fn_str.split("[")) >= 2):
+      total_txt = refs[i].data.cpu().numpy()
+      new_flag = 0
+      total_txt_vec = ""
+      for l_i in range(0, len(total_txt)):
+        if(total_txt[l_i] == 0):
+          break
+        wrd = self.vocab['refexp_idx_to_token'][total_txt[l_i]]
+        if(len(wrd) == 0):
+          continue
+        if new_flag == 0:
+          total_txt_vec = self.glove[wrd]
+          new_flag = 1
+        else:
+          total_txt_vec = total_txt_vec + self.glove[wrd]
+      if(new_flag == 1):
+        module_inputs.append(total_txt_vec)
+      else:
+        module_inputs.append(self.glove['NULL'])
     module_output = module(*module_inputs)
     return module_output, j
 
 
-  def _forward_modules_ints(self, feats, program):
+  def _forward_modules_ints(self, feats, program, refs):
     """
     feats: FloatTensor of shape (N, C, H, W) giving features for each image
     program: LongTensor of shape (N, L) giving a prefix-encoded program for
@@ -290,25 +310,25 @@ class ModuleNet(nn.Module):
     final_module_outputs = []
     self.used_fns = torch.Tensor(program.size()).fill_(0)
     for i in range(N):
-      cur_output, _ = self._forward_modules_ints_helper(feats, program, i, 0)
+      cur_output, _ = self._forward_modules_ints_helper(feats, program, i, 0, refs)
       final_module_outputs.append(cur_output)
     self.used_fns = self.used_fns.type_as(program.data).float()
     final_module_outputs = torch.cat(final_module_outputs, 0)
     return final_module_outputs
 
 
-  def forward(self, x, program):
+  def forward(self, x, program, refs):
     N = x.size(0)
     assert N == len(program)
 
     feats = self.stem(x)
 
     if type(program) is list or type(program) is tuple:
-      final_module_outputs = self._forward_modules_json(feats, program)
+      final_module_outputs = self._forward_modules_json(feats, program, refs)
     elif type(program) is torch.Tensor and program.dim() == 2:
-      final_module_outputs = self._forward_modules_ints(feats, program)
+      final_module_outputs = self._forward_modules_ints(feats, program, refs)
     elif type(program) is Variable and program.dim() == 2:
-      final_module_outputs = self._forward_modules_ints(feats, program)
+      final_module_outputs = self._forward_modules_ints(feats, program, refs)
     else:
       raise ValueError('Unrecognized program format')
 
