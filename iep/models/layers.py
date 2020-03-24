@@ -53,6 +53,8 @@ class ResidualBlock_LangAttention(nn.Module):
     self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
 
     self.lstm11 = nn.LSTM(q_dim, in_dim, bidirectional=True, batch_first=True)
+    #self.lstm11 = nn.LSTM(q_dim, int(in_dim/2), bidirectional=True, batch_first=True)
+    #self.lstm11 = nn.LSTM(q_dim, in_dim, bidirectional=False, batch_first=True)
     self.lstm22 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
 
     #self.lang_tq = nn.Linear(tq_dim, in_dim)
@@ -81,8 +83,10 @@ class ResidualBlock_LangAttention(nn.Module):
     q_lstm, _ = self.lstm11(q)
     q_lstm, _ = self.lstm22(q_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
 
-    #txt_conv = self.conv11( F.relu(self.conv1(x) * self.lang1(q).view(q.shape[0],-1,1,1)) ) * h_lstm[:,-1].view(t_q.shape[0],-1,1,1)
-    txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1) 
+    txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
+    #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
+    #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) 
+    #txt_conv = self.conv1(x)
 
     if self.with_batchnorm:
       out = F.relu(self.bn1(txt_conv))
