@@ -697,7 +697,7 @@ if __name__ == '__main__':
   args.model_type = "PG+EE"
   args.num_iterations = 150000
   args.learning_rate = 1e-4
-  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_lang_attention_with_entire_question.pt"
+  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_lang_attention_with_entire_question_lstm.pt"
   args.checkpoint_every = 10000
   args.train_refexp_h5 = "data/small_dataset/train_refexps.h5"
   args.train_features_h5 = "data/train_features.h5"

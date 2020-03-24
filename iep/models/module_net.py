@@ -110,7 +110,7 @@ class ModuleNet(nn.Module):
     if verbose:
       print('Here is my stem:')
       print(self.stem)
-    self.glove = torchtext.vocab.GloVe(name="6B", dim=50)   # embedding size = 50
+    self.glove = torchtext.vocab.GloVe(name="840B", dim=300)   # embedding size = 300
     
     module_H, module_W = feature_dim[1], feature_dim[2]
     self.classifier = build_classifier(module_dim, module_H, module_W, 
@@ -256,46 +256,55 @@ class ModuleNet(nn.Module):
     else:
       num_inputs = self.function_modules_num_inputs[fn_str.split("[")[0]]
       module_inputs = []
+      
       while len(module_inputs) < num_inputs:
         cur_input, j = self._forward_modules_ints_helper(feats, program, i, j, refs)
         module_inputs.append(cur_input)
+
       if(len(fn_str.split("[")) >= 2):
         lang_txt_inp = fn_str.split("[")[1][:-1]
         lang_txt_inp_list = re.split('[, ;\'"?\.!()]',lang_txt_inp.strip())
-        flag = 0
-        txt_vec = ""
+        txt_vec_list = []
         for l_i in range(0, len(lang_txt_inp_list)):
           wrd = lang_txt_inp_list[l_i].strip()
           if(len(wrd) == 0):
             continue
-          if flag == 0:
-            txt_vec = self.glove[wrd]
-            flag = 1
+          txt_vec_list.append(torch.Tensor(self.glove[wrd]).view(1,-1))
+
+        for i_i in range(0,len(txt_vec_list)):
+          if(i_i == 0):
+            txt_inp = txt_vec_list[i_i]
           else:
-            txt_vec = txt_vec + self.glove[wrd]
-        if(flag == 1):
-          module_inputs.append(txt_vec)
-        else:
-          module_inputs.append(self.glove['NULL'])
+            txt_inp = torch.cat((txt_inp, txt_vec_list[i_i]),0)
+        
+        if(len(txt_vec_list) == 0):
+          module_inputs.append(torch.Tensor(self.glove['NULL']).view(1,-1))
+        else:  
+          module_inputs.append(txt_inp)  # shape of entire_txt_inp is seq_lenX300
+        
     if(len(fn_str.split("[")) >= 2):
       total_txt = refs[i].data.cpu().numpy()
-      new_flag = 0
-      total_txt_vec = ""
+      total_txt_vec_list = []
+      
       for l_i in range(0, len(total_txt)):
         if(total_txt[l_i] == 0):
           break
         wrd = self.vocab['refexp_idx_to_token'][total_txt[l_i]]
         if(len(wrd) == 0):
           continue
-        if new_flag == 0:
-          total_txt_vec = self.glove[wrd]
-          new_flag = 1
+        total_txt_vec_list.append(torch.Tensor(self.glove[wrd]).view(1,-1))
+      
+      for i_i in range(0,len(total_txt_vec_list)):
+        if(i_i == 0):
+          entire_txt_inp = total_txt_vec_list[i_i]
         else:
-          total_txt_vec = total_txt_vec + self.glove[wrd]
-      if(new_flag == 1):
-        module_inputs.append(total_txt_vec)
+          entire_txt_inp = torch.cat((entire_txt_inp, total_txt_vec_list[i_i]),0)
+
+      if(len(total_txt_vec_list) == 0):
+        module_inputs.append(torch.Tensor(self.glove['NULL']).view(1,-1))
       else:
-        module_inputs.append(self.glove['NULL'])
+        module_inputs.append(entire_txt_inp) # shape of entire_txt_inp is seq_lenX300
+
     module_output = module(*module_inputs)
     return module_output, j
 
