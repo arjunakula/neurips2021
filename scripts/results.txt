@@ -10,4 +10,7 @@ val accuracy on 250000 iterations = 44.8
 
 ============================
 march  2020 (after adding lstm encoder with attention)
+data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_LSTMEncoderAttn_lang_attention_with_entire_question_lstm.pt_250000 train acc=86.04
 
+val accuracy on 150000 iterations = 45.74 
+val accuracy on 250000 iterations = 46.63
