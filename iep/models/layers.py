@@ -49,6 +49,9 @@ class ResidualBlock_LangAttention(nn.Module):
     super(ResidualBlock_LangAttention, self).__init__()
     #self.lang1 = nn.Linear(q_dim, in_dim)
 
+    self.linearizeImage = nn.Linear(128*20*20, 128)
+    self.linearizeCZBSignal = nn.Linear(128*2, 128)
+
     self.lstm1 = nn.LSTM(tq_dim, in_dim, bidirectional=True, batch_first=True)
     self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
 
@@ -95,8 +98,15 @@ class ResidualBlock_LangAttention(nn.Module):
     #lang encode without attention
     #txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
     
+    #changes for lstm with memory module (CZB)
+    x_flat = torch.flatten(x)
+    CZB_imageAttention = F.relu(self.linearizeImage(x_flat))
+    
+    concatenated_CZB = self.linearizeCZBSignal(torch.cat((CZB_imageAttention, torch.flatten(tq_attn)))).view(t_q.shape[0],-1,1,1)
+
     #lang encode with attention
-    txt_conv = self.conv11( F.relu(self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
+    #txt_conv = self.conv11( F.relu(self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)) ) *  tq_attn.view(t_q.shape[0],-1,1,1)
+    txt_conv = self.conv11( F.relu(self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)) ) * concatenated_CZB
     
 
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)

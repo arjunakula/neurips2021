@@ -314,7 +314,7 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
       elif args.model_type == 'EE':
         # Train execution engine with ground-truth programs
         ee_optimizer.zero_grad()
-        scores = execution_engine(feats_var, programs_var, refexps_var)
+        scores = execution_engine(feats_var, programs_var)
         preds = scores.clone()
 
         scores = scores.transpose(1,2).transpose(2,3).contiguous()
@@ -371,7 +371,7 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
         programs_pred = programs_pred.data.cpu().numpy()
         programs_pred = torch.LongTensor(programs_pred).cuda()
 
-        scores = execution_engine(feats_var, programs_pred, refexps_var)
+        scores = execution_engine(feats_var, programs_pred)
 
         preds = scores.clone()
 
@@ -665,12 +665,12 @@ def check_accuracy(args, program_generator, execution_engine, baseline_model, lo
           num_correct += 1
         num_samples += 1
     elif args.model_type == 'EE':
-        scores = execution_engine(feats_var, programs_var, refexps_var)
+        scores = execution_engine(feats_var, programs_var)
         scores = None
     elif args.model_type == 'PG+EE':
       programs_pred = program_generator.reinforce_sample(
                           refexps_var, argmax=True)
-      scores = execution_engine(feats_var, programs_pred, refexps_var)
+      scores = execution_engine(feats_var, programs_pred)
     elif args.model_type in ['LSTM', 'CNN+LSTM', 'CNN+LSTM+SA']:
       scores = baseline_model(refexps_var, feats_var)
 
@@ -695,10 +695,10 @@ if __name__ == '__main__':
   args.train_execution_engine = 1
   args.train_program_generator = 0
   args.model_type = "PG+EE"
-  args.num_iterations = 250000
+  args.num_iterations = 50
   args.learning_rate = 1e-4
-  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_tiny/execution_engine_with_LSTMEncoderAttn_lang_attention_with_entire_question_lstm.pt"
-  args.checkpoint_every = 10000
+  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_tiny/execution_engine.pt"
+  args.checkpoint_every = 10
   args.train_refexp_h5 = "data/tiny_dataset/train_refexps.h5"
   args.train_features_h5 = "data/train_features.h5"
   args.val_refexp_h5 = "data/tiny_dataset/val_refexps.h5"
@@ -708,21 +708,3 @@ if __name__ == '__main__':
   args.feature_dim="1024,20,20"
 
   main(args)
-  ###
-  ###Results####
-
-  # mar 16 2020: after adding lang attention 
-  # training accuracies
-  # now IoU = 0.71963, cumulative IoU = 0.545952
-  # testing accuracies  on full val_singleobject set
-  # 26.67%
-  #=============
-  # mar 16 2020: without adding lang attention 
-  # training accuracies
-  # now IoU = 92.9, cumulative IoU = 82.06
-  # testing accuracies on full val_singleobject set
-  # 42.2%
-  #==============
-
-
-
