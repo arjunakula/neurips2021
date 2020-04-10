@@ -9,6 +9,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from pacnet import pac
 
 
 class ResidualBlock(nn.Module):
@@ -61,7 +62,9 @@ class ResidualBlock_LangAttention(nn.Module):
     self.attention_layer_tq = Attention(in_dim)
 
     #self.lang_tq = nn.Linear(tq_dim, in_dim)
-    self.conv1 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
+    #self.conv1 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
+    self.conv1 = pac.PacConv2d(in_dim, out_dim, kernel_size=3, padding=1)
+
     self.conv11 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
 
     self.conv2 = nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1)
@@ -96,7 +99,10 @@ class ResidualBlock_LangAttention(nn.Module):
     #txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
     
     #lang encode with attention
-    txt_conv = self.conv11( F.relu(self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
+
+    guide = torch.rand(1, 8,20, 20).cuda()
+
+    txt_conv = self.conv11( F.relu(self.conv1(x,guide) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
     
 
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
