@@ -305,6 +305,11 @@ class ModuleNet(nn.Module):
       else:
         module_inputs.append(entire_txt_inp) # shape of entire_txt_inp is seq_lenX300
 
+    #FIXME:
+    #add originak image as input to the module: for the puropose of getting co-saliency guidance
+    if(len(fn_str.split("[")) >= 2):
+      module_inputs.append(feats[i:i+1])
+
     module_output = module(*module_inputs)
     return module_output, j
 

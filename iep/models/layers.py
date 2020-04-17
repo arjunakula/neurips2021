@@ -48,7 +48,9 @@ class ResidualBlock_LangAttention(nn.Module):
     if out_dim is None:
       out_dim = in_dim
     super(ResidualBlock_LangAttention, self).__init__()
-    self.langLinear = nn.Linear(in_dim*2, 8*20*20)
+    #self.langLinear = nn.Linear(in_dim*2, 8*20*20)
+    self.langLinear1 = nn.Linear(in_dim*2, in_dim)
+    self.langLinear2 = nn.Linear(in_dim*2, in_dim)
 
     self.lstm1 = nn.LSTM(tq_dim, in_dim, bidirectional=True, batch_first=True)
     self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
@@ -70,6 +72,11 @@ class ResidualBlock_LangAttention(nn.Module):
 
     #self.conv2 = nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1)
     self.conv2 = pac.PacConv2d(out_dim, out_dim, kernel_size=3, padding=1)
+
+    # adding co-saliency guidance convolution blocks here
+    self.conv_g1 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
+    depth_guidance_vector = 8 # channels in guidance vector
+    self.conv_g2 = nn.Conv2d(in_dim, depth_guidance_vector, kernel_size=3, padding=1)
     
     self.with_batchnorm = with_batchnorm
     if with_batchnorm:
@@ -83,7 +90,8 @@ class ResidualBlock_LangAttention(nn.Module):
       self.proj = pac.PacConv2d(in_dim, out_dim, kernel_size=1)
 
   #expect t_q to be seq_len X 300, where 300 is word2vec embedding of each word.
-  def forward(self, x, q, t_q):
+  #def forward(self, x, q, t_q):
+  def forward(self, x, q, t_q, I):
     q = q.unsqueeze(0).cuda()
     t_q = t_q.unsqueeze(0).cuda() # to make t_q as 1Xseq_lenX300
 
@@ -97,7 +105,7 @@ class ResidualBlock_LangAttention(nn.Module):
     q_lstm, _ = self.lstm22(q_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
 
     q_attn = self.attention_layer_q(q_lstm, q.shape[1])
-    tq_attn = self.attention_layer_q(tq_lstm, t_q.shape[1])
+    tq_attn = self.attention_layer_tq(tq_lstm, t_q.shape[1])
 
     #lang encode without attention
     #txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
@@ -107,14 +115,24 @@ class ResidualBlock_LangAttention(nn.Module):
     #lang_guidance = torch.rand(1, 8,20, 20).cuda()
     lang_input = torch.cat((q_attn.flatten(), tq_attn.flatten()))
 
-    lang_guidance = F.relu(self.langLinear(lang_input))
+    lang_guidance1 = F.sigmoid(self.langLinear1(lang_input))
+    lang_guidance2 = F.sigmoid(self.langLinear2(lang_input))
 
-    lang_guidance = lang_guidance.view(-1,8,20,20)
+    #FIXME: check size of input image I
+    guided_conv_1 = F.relu(self.conv_g1(I))
+    guided_conv_1_filtered = guided_conv_1 * lang_guidance1
+    guided_conv_2 = F.relu(self.conv_g2(guided_conv_1_filtered))
+    guided_conv_2_filtered = guided_conv_2 * lang_guidance2
+
+    #only thing left now: get guided_conv1_filtered.
+  
+    #lang_guidance = lang_guidance.view(-1,8,20,20)
 
     #txt_conv = self.conv11( F.relu(self.conv1(x,guide) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
 
     #txt_conv = self.conv11( F.relu(self.conv1(x,lang_guidance) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
-    txt_conv = F.relu(self.conv1(x,lang_guidance) )
+    #txt_conv = F.relu(self.conv1(x,lang_guidance) )
+    txt_conv = F.relu(self.conv1(x,guided_conv_2_filtered) )
     
 
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
@@ -123,9 +141,11 @@ class ResidualBlock_LangAttention(nn.Module):
 
     if self.with_batchnorm:
       out = F.relu(self.bn1(txt_conv))
-      out = self.bn2(self.conv2(out,lang_guidance))
+      #out = self.bn2(self.conv2(out,lang_guidance))
+      out = self.bn2(self.conv2(out,guided_conv_2_filtered))
     else:
-      out = self.conv2(F.relu(txt_conv), lang_guidance)
+      #out = self.conv2(F.relu(txt_conv), lang_guidance)
+      out = self.conv2(F.relu(txt_conv), guided_conv_2_filtered)
     res = x if self.proj is None else self.proj(x)
     if self.with_residual:
       out = F.relu(res + out)
