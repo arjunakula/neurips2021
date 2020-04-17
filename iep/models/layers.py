@@ -50,7 +50,7 @@ class ResidualBlock_LangAttention(nn.Module):
     super(ResidualBlock_LangAttention, self).__init__()
     #self.langLinear = nn.Linear(in_dim*2, 8*20*20)
     self.langLinear1 = nn.Linear(in_dim*2, in_dim)
-    self.langLinear2 = nn.Linear(in_dim*2, in_dim)
+    self.langLinear2 = nn.Linear(in_dim*2, 8)
 
     self.lstm1 = nn.LSTM(tq_dim, in_dim, bidirectional=True, batch_first=True)
     self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
@@ -120,9 +120,9 @@ class ResidualBlock_LangAttention(nn.Module):
 
     #FIXME: check size of input image I
     guided_conv_1 = F.relu(self.conv_g1(I))
-    guided_conv_1_filtered = guided_conv_1 * lang_guidance1
+    guided_conv_1_filtered = guided_conv_1 * lang_guidance1.view(1,128,1,1)
     guided_conv_2 = F.relu(self.conv_g2(guided_conv_1_filtered))
-    guided_conv_2_filtered = guided_conv_2 * lang_guidance2
+    guided_conv_2_filtered = guided_conv_2 * lang_guidance2.view(1,8,1,1)
 
     #only thing left now: get guided_conv1_filtered.
   
