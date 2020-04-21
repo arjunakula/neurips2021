@@ -70,8 +70,8 @@ class ResidualBlock_LangAttention(nn.Module):
     #self.conv11 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
     self.conv11 = pac.PacConv2d(in_dim, out_dim, kernel_size=3, padding=1)
 
-    #self.conv2 = nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1)
-    self.conv2 = pac.PacConv2d(out_dim, out_dim, kernel_size=3, padding=1)
+    self.conv2 = nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1)
+    #self.conv2 = pac.PacConv2d(out_dim, out_dim, kernel_size=3, padding=1)
 
     # adding co-saliency guidance convolution blocks here
     self.conv_g1 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
@@ -142,10 +142,12 @@ class ResidualBlock_LangAttention(nn.Module):
     if self.with_batchnorm:
       out = F.relu(self.bn1(txt_conv))
       #out = self.bn2(self.conv2(out,lang_guidance))
-      out = self.bn2(self.conv2(out,guided_conv_2_filtered))
+      #out = self.bn2(self.conv2(out,guided_conv_2_filtered))
+      out = self.bn2(self.conv2(out))
     else:
       #out = self.conv2(F.relu(txt_conv), lang_guidance)
-      out = self.conv2(F.relu(txt_conv), guided_conv_2_filtered)
+      #out = self.conv2(F.relu(txt_conv), guided_conv_2_filtered)
+      out = self.conv2(F.relu(txt_conv))
     res = x if self.proj is None else self.proj(x)
     if self.with_residual:
       out = F.relu(res + out)
