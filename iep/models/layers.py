@@ -66,6 +66,8 @@ class ResidualBlock_LangAttention(nn.Module):
     #self.lang_tq = nn.Linear(tq_dim, in_dim)
     #self.conv1 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
     self.conv1 = pac.PacConv2d(in_dim, out_dim, kernel_size=3, padding=1)
+    self.conv_normalconv = nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1)
+    
 
     #self.conv11 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
     self.conv11 = pac.PacConv2d(in_dim, out_dim, kernel_size=3, padding=1)
@@ -133,6 +135,8 @@ class ResidualBlock_LangAttention(nn.Module):
     #txt_conv = self.conv11( F.relu(self.conv1(x,lang_guidance) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
     #txt_conv = F.relu(self.conv1(x,lang_guidance) )
     txt_conv = F.relu(self.conv1(x,guided_conv_2_filtered) )
+
+    txt_conv_resid = F.relu(self.conv_normalconv(txt_conv + x))
     
 
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
@@ -140,14 +144,14 @@ class ResidualBlock_LangAttention(nn.Module):
     #txt_conv = self.conv1(x)
 
     if self.with_batchnorm:
-      out = F.relu(self.bn1(txt_conv))
+      out = F.relu(self.bn1(txt_conv_resid))
       #out = self.bn2(self.conv2(out,lang_guidance))
       #out = self.bn2(self.conv2(out,guided_conv_2_filtered))
       out = self.bn2(self.conv2(out))
     else:
       #out = self.conv2(F.relu(txt_conv), lang_guidance)
       #out = self.conv2(F.relu(txt_conv), guided_conv_2_filtered)
-      out = self.conv2(F.relu(txt_conv))
+      out = self.conv2(F.relu(txt_conv_resid))
     res = x if self.proj is None else self.proj(x)
     if self.with_residual:
       out = F.relu(res + out)
