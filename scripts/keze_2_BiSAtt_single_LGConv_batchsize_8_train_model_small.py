@@ -697,14 +697,14 @@ if __name__ == '__main__':
   args.model_type = "PG+EE"
   args.num_iterations = 500000
   args.learning_rate = 1e-4
-  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/keze_2_BiSAtt_batchsize_16.pt"
+  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/keze_1_BiSAtt_batchsize_8.pt"
   args.checkpoint_every = 10000
   args.train_refexp_h5 = "data/small_dataset/train_refexps.h5"
   args.train_features_h5 = "data/train_features.h5"
   args.val_refexp_h5 = "data/small_dataset/val_refexps.h5"
   args.val_features_h5 = "data/val_features.h5"
   args.vocab_json = "data/vocab.json"
-  args.batch_size = 16
+  args.batch_size = 8
   args.feature_dim="1024,20,20"
 
   main(args)
