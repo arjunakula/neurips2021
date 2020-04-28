@@ -14,6 +14,8 @@ from torch.utils.data.dataloader import default_collate
 
 import iep.programs
 
+from nltk.parse import CoreNLPParser
+
 
 def _dataset_to_tensor(dset, mask=None):
   arr = np.asarray(dset, dtype=np.int64)
@@ -22,6 +24,11 @@ def _dataset_to_tensor(dset, mask=None):
   tensor = torch.LongTensor(arr)
   return tensor
 
+def getSyntaxTrees(input_refs_tensors):
+      parser = CoreNLPParser(url='http://localhost:9000')
+      
+      return syntaxTrees
+      
 
 class ClevrDataset(Dataset):
   def __init__(self, refexp_h5, feature_h5, vocab, mode='prefix',
@@ -55,6 +62,10 @@ class ClevrDataset(Dataset):
     # Data from the refexp file is small, so read it all into memory
     print('Reading refexp data into memory')
     self.all_refexps = _dataset_to_tensor(refexp_h5['refexps'], mask)
+
+    #FIXME: arjun... adding code to run syntactic parsers and store them in memory
+    self.syntax_trees = getSyntaxTrees(self.all_refexps)
+
     self.all_image_idxs = _dataset_to_tensor(refexp_h5['image_idxs'], mask)
     self.all_programs = None
     if 'programs' in refexp_h5:
@@ -66,6 +77,10 @@ class ClevrDataset(Dataset):
 
   def __getitem__(self, index):
     refexp = self.all_refexps[index]
+
+    #FIXME: arjun... modifying code to return syntax trees along with refs
+    syntaxTree = self.syntax_trees[index]
+
     image_idx = self.all_image_idxs[index]
     _tmp = np.asarray(self.all_answers[index], dtype=np.int64)
     answer = torch.LongTensor(_tmp)
@@ -96,7 +111,8 @@ class ClevrDataset(Dataset):
       elif self.mode == 'postfix':
         program_json = iep.programs.postfix_to_list(program_json_seq)
 
-    return (refexp, image, feats, answer, program_seq, program_json, image_idx)
+    #FIXME: arjun
+    return (refexp, image, feats, answer, program_seq, program_json, image_idx, syntaxTree)
 
   def __len__(self):
     if self.max_samples is None:

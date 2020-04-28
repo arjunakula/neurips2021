@@ -292,7 +292,7 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
 
     for batch in train_loader:
       t += 1
-      refexps, _, feats, answers, programs, __, image_id = batch
+      refexps, _, feats, answers, programs, __, image_id, syntaxTrees = batch
 
       refexps_var = Variable(refexps.cuda())
       feats_var = Variable(feats.cuda())
