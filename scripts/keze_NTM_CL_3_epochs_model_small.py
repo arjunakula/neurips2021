@@ -295,8 +295,8 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
 
   tic_time = time.time()
   toc_time = time.time()
-  linear_iterations = [5,5,5,5,5,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_5_epochs 
-  #linear_iterations_2 = [3,3,3,3,3,3,3,3,3,3,3,3,3,3] # CL_extension_for_AttnEntireQuestion_CL_3_epochs
+  #linear_iterations = [5,5,5,5,5,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_5_epochs 
+  linear_iterations = [3,3,3,3,3,3,3,3,3,3,3,3,3,3] # CL_extension_for_AttnEntireQuestion_CL_3_epochs
   #decay_iterations = [10,10,10,8,8,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_annealing_10_to_5
   total_epochs_limit = sum(linear_iterations)
   #while t < args.num_iterations:
