@@ -783,7 +783,7 @@ if __name__ == '__main__':
   args.model_type = "PG+EE"
   args.num_iterations = 500000
   args.learning_rate = 1e-4
-  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_CL_extension_for_AttnEntireQuestion_CL_5_epochs.pt"
+  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_CL_extension_for_without_NTM_EntireQuestion_CL_5_epochs.pt"
   args.checkpoint_every_epoch = 1
   args.train_refexp_h5 = data_dir +  "/small_dataset/train_refexps.h5"
   args.train_features_h5 = data_dir +  "/train_features.h5"

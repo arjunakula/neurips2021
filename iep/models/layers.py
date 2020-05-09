@@ -49,16 +49,16 @@ class ResidualBlock_LangAttention(nn.Module):
     super(ResidualBlock_LangAttention, self).__init__()
     #self.lang1 = nn.Linear(q_dim, in_dim)
 
-    self.lstm1 = nn.LSTM(tq_dim, in_dim, bidirectional=True, batch_first=True)
-    self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
+    self.lstm1 = nn.LSTM(tq_dim, in_dim, bidirectional=False, batch_first=True)
+    #self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=False, batch_first=True)
 
-    self.lstm11 = nn.LSTM(q_dim, in_dim, bidirectional=True, batch_first=True)
+    self.lstm11 = nn.LSTM(q_dim, in_dim, bidirectional=False, batch_first=True)
     #self.lstm11 = nn.LSTM(q_dim, int(in_dim/2), bidirectional=True, batch_first=True)
     #self.lstm11 = nn.LSTM(q_dim, in_dim, bidirectional=False, batch_first=True)
-    self.lstm22 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
+    #self.lstm22 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=False, batch_first=True)
 
-    self.attention_layer_q = Attention(in_dim)
-    self.attention_layer_tq = Attention(in_dim)
+    #self.attention_layer_q = Attention(in_dim)
+    #self.attention_layer_tq = Attention(in_dim)
 
     #self.lang_tq = nn.Linear(tq_dim, in_dim)
     self.conv1 = nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1)
@@ -84,19 +84,20 @@ class ResidualBlock_LangAttention(nn.Module):
     #packed_embedded_tq = nn.utils.rnn.pack_padded_sequence(t_q, [t_q.shape[1]],batch_first=True)
 
     tq_lstm, _ = self.lstm1(t_q)
-    tq_lstm, _ = self.lstm2(tq_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
+    #tq_lstm, _ = self.lstm2(tq_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
 
     q_lstm, _ = self.lstm11(q)
-    q_lstm, _ = self.lstm22(q_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
+    #q_lstm, _ = self.lstm22(q_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
 
-    q_attn = self.attention_layer_q(q_lstm, q.shape[1])
-    tq_attn = self.attention_layer_q(tq_lstm, t_q.shape[1])
+    #remove attention, instaed take last layer of lstm
+    #q_attn = self.attention_layer_q(q_lstm, q.shape[1])
+    #tq_attn = self.attention_layer_q(tq_lstm, t_q.shape[1])
 
     #lang encode without attention
     #txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
     
     #lang encode with attention
-    txt_conv = self.conv11( F.relu(self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
+    txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
     
 
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
