@@ -281,9 +281,9 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
 
   tic_time = time.time()
   toc_time = time.time()
-  linear_iterations = [5,5,5,5,5,5,5,5,5,5,5,5,5,5]
-  linear_iterations_2 = [3,3,3,3,3,3,3,3,3,3,3,3,3,3]
-  #decay_iterations = [10,10,10,8,8,5,5,5,5,5,5,5,5,5]
+  linear_iterations = [5,5,5,5,5,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_5_epochs 
+  #linear_iterations_2 = [3,3,3,3,3,3,3,3,3,3,3,3,3,3] # CL_extension_for_AttnEntireQuestion_CL_3_epochs
+  #decay_iterations = [10,10,10,8,8,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_annealing_10_to_5
   total_epochs_limit = sum(linear_iterations)
   #while t < args.num_iterations:
   while epoch < total_epochs_limit:
@@ -501,57 +501,58 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
         if reward is not None:
           stats['train_rewards'].append(reward)
 
-      if t % args.checkpoint_every == 0:
-        print('Checking training accuracy ... ')
-        if args.model_type == 'PG':
-          train_acc = check_accuracy(args, program_generator, execution_engine,
-                                     baseline_model, train_loader)
-        else:
-          train_acc = 0.0
+    #if t % args.checkpoint_every == 0:
+    if epoch % args.checkpoint_every_epoch == 0:
+      print('Checking training accuracy ... ')
+      if args.model_type == 'PG':
+        train_acc = check_accuracy(args, program_generator, execution_engine,
+                                    baseline_model, train_loader)
+      else:
+        train_acc = 0.0
 
-        print('train accuracy is', train_acc)
-        print('Checking validation accuracy ...')
-        if args.model_type == 'PG':
-          val_acc = check_accuracy(args, program_generator, execution_engine,
-                                 baseline_model, val_loader)
-        else:
-          val_acc = 0.0
+      print('train accuracy is', train_acc)
+      print('Checking validation accuracy ...')
+      if args.model_type == 'PG':
+        val_acc = check_accuracy(args, program_generator, execution_engine,
+                                baseline_model, val_loader)
+      else:
+        val_acc = 0.0
 
-        print('val accuracy is ', val_acc)
+      print('val accuracy is ', val_acc)
 
-        stats['train_accs'].append(train_acc)
-        stats['val_accs'].append(val_acc)
-        stats['val_accs_ts'].append(t)
+      stats['train_accs'].append(train_acc)
+      stats['val_accs'].append(val_acc)
+      stats['val_accs_ts'].append(t)
 
-        #Alwayse save models
-        if True:
-          stats['best_val_acc'] = val_acc
-          stats['model_t'] = t
-          best_pg_state = get_state(program_generator)
-          best_ee_state = get_state(execution_engine)
-          best_baseline_state = get_state(baseline_model)
+      #Alwayse save models
+      if True:
+        stats['best_val_acc'] = val_acc
+        stats['model_t'] = t
+        best_pg_state = get_state(program_generator)
+        best_ee_state = get_state(execution_engine)
+        best_baseline_state = get_state(baseline_model)
 
-        checkpoint = {
-          'args': args.__dict__,
-          'program_generator_kwargs': pg_kwargs,
-          'program_generator_state': best_pg_state,
-          'execution_engine_kwargs': ee_kwargs,
-          'execution_engine_state': best_ee_state,
-          'baseline_kwargs': baseline_kwargs,
-          'baseline_state': best_baseline_state,
-          'baseline_type': baseline_type,
-          'vocab': vocab
-        }
-        for k, v in stats.items():
-          checkpoint[k] = v
-        print('Saving checkpoint to %s' % args.checkpoint_path + '_' + str(t))
-        torch.save(checkpoint, args.checkpoint_path + '_' + str(t))
-        del checkpoint['program_generator_state']
-        del checkpoint['execution_engine_state']
-        del checkpoint['baseline_state']
+      checkpoint = {
+        'args': args.__dict__,
+        'program_generator_kwargs': pg_kwargs,
+        'program_generator_state': best_pg_state,
+        'execution_engine_kwargs': ee_kwargs,
+        'execution_engine_state': best_ee_state,
+        'baseline_kwargs': baseline_kwargs,
+        'baseline_state': best_baseline_state,
+        'baseline_type': baseline_type,
+        'vocab': vocab
+      }
+      for k, v in stats.items():
+        checkpoint[k] = v
+      print('Saving checkpoint to %s' % args.checkpoint_path + '_' + str(t))
+      torch.save(checkpoint, args.checkpoint_path + '_' + str(t))
+      del checkpoint['program_generator_state']
+      del checkpoint['execution_engine_state']
+      del checkpoint['baseline_state']
 
-      if t == args.num_iterations:
-        break
+      # if t == args.num_iterations:
+      #   break
 
 
 def parse_int_list(s):
@@ -744,8 +745,8 @@ if __name__ == '__main__':
   args.model_type = "PG+EE"
   args.num_iterations = 250000
   args.learning_rate = 1e-4
-  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_LSTMEncoderAttn_lang_attention_with_entire_question_lstm.pt"
-  args.checkpoint_every = 10000
+  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_CL_extension_for_AttnEntireQuestion_CL_5_epochs.pt"
+  args.checkpoint_every_epoch = 1
   args.train_refexp_h5 = "data/small_dataset/train_refexps.h5"
   args.train_features_h5 = "data/train_features.h5"
   args.val_refexp_h5 = "data/small_dataset/val_refexps.h5"
