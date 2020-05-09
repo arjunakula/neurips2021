@@ -281,18 +281,63 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
 
   tic_time = time.time()
   toc_time = time.time()
-  while t < args.num_iterations:
+  linear_iterations = [5,5,5,5,5,5,5,5,5,5,5,5,5,5]
+  linear_iterations_2 = [3,3,3,3,3,3,3,3,3,3,3,3,3,3]
+  #decay_iterations = [10,10,10,8,8,5,5,5,5,5,5,5,5,5]
+  total_epochs_limit = sum(linear_iterations)
+  #while t < args.num_iterations:
+  while epoch < total_epochs_limit:
     epoch += 1
     print('Starting epoch %d' % epoch)
+    print('Starting iterations %d' % t)
     train_loader.reset()
     val_loader.reset()
 
     cum_I=0 ; cum_U=0
 
+    competency_level = 1 #from 1 to 10
+    cum_diff = 0
+    for km in range(0,len(linear_iterations)):
+      cum_diff = cum_diff+linear_iterations[km]
+      if (epoch-cum_diff) <=0:
+        competency_level = km+1
+        break
 
     for batch in train_loader:
       t += 1
-      refexps, _, feats, answers, programs, __, image_id = batch
+
+      #filter batch based on difficulty level
+      filtered_indices=[] # the ones to keep
+      for i in range(0,batch[7].shape[0]):
+        if(batch[7][i] <= competency_level):
+          filtered_indices.append(i)
+
+      if(len(filtered_indices) == 0):
+        continue
+
+      refexps_1, _, feats_1, answers_1, programs_1, __, image_id_1, curriculum_difficulty_1 = batch
+      
+      refexps = refexps_1[filtered_indices[0]].view(-1,refexps_1.shape[1])
+      feats = feats_1[filtered_indices[0]].view(-1,feats_1.shape[1],feats_1.shape[2],feats_1.shape[3])
+      answers = answers_1[filtered_indices[0]].view(-1,answers_1.shape[1],answers_1.shape[2])
+      programs = programs_1[filtered_indices[0]].view(-1,programs_1.shape[1])
+      image_id = image_id_1[filtered_indices[0]].view(-1)
+      curriculum_difficulty = curriculum_difficulty_1[filtered_indices[0]].view(-1)
+
+      for idx in range(1,len(filtered_indices)):
+        refexps = torch.cat((refexps, refexps_1[filtered_indices[i]].view(-1,refexps_1.shape[1])), 0)
+        feats = torch.cat((feats, feats_1[filtered_indices[i]].view(-1,feats_1.shape[1],feats_1.shape[2],feats_1.shape[3])), 0)
+        answers = torch.cat((answers, answers_1[filtered_indices[i]].view(-1,answers_1.shape[1],answers_1.shape[2])), 0)
+        programs = torch.cat((programs, programs_1[filtered_indices[i]].view(-1,programs_1.shape[1])), 0)
+        image_id = torch.cat((image_id, image_id_1[filtered_indices[i]].view(-1)), 0)
+        curriculum_difficulty = torch.cat((curriculum_difficulty, curriculum_difficulty_1[filtered_indices[i]].view(-1)), 0)
+        
+      # refexps = refexps[filtered_indices]
+      # feats = feats[filtered_indices]
+      # answers = answers[filtered_indices]
+      # programs = programs[filtered_indices]
+      # image_id = image_id[filtered_indices]
+      # curriculum_difficulty = curriculum_difficulty[filtered_indices]
 
       refexps_var = Variable(refexps.cuda())
       feats_var = Variable(feats.cuda())
@@ -328,7 +373,8 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
           assert(target.shape[-2:] == masks.shape[-2:])
           masks = masks.data.cpu().numpy()
           masks = masks[:, 1, :, :] > masks[:, 0, :, :]
-          masks = masks.reshape([args.batch_size, 320, 320])
+          #masks = masks.reshape([args.batch_size, 320, 320])
+          masks = masks.reshape([-1, 320, 320])
           target = target.data.cpu().numpy()
           print('np.sum(masks)={}'.format(np.sum(masks)))
           print('np.sum(target)={}'.format(np.sum(target)))
@@ -384,7 +430,8 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
           assert(target.shape[-2:] == masks.shape[-2:])
           masks = masks.data.cpu().numpy()
           masks = masks[:, 1, :, :] > masks[:, 0, :, :]
-          masks = masks.reshape([args.batch_size, 320, 320])
+          #masks = masks.reshape([args.batch_size, 320, 320])
+          masks = masks.reshape([-1, 320, 320])
           target = target.data.cpu().numpy()
           print('np.sum(masks)={}'.format(np.sum(masks)))
           print('np.sum(target)={}'.format(np.sum(target)))
