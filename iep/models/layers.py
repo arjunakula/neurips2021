@@ -77,17 +77,17 @@ class ResidualBlock_LangAttention(nn.Module):
 
   #expect t_q to be seq_len X 300, where 300 is word2vec embedding of each word.
   def forward(self, x, q, t_q):
-    q = q.unsqueeze(0).cuda()
-    t_q = t_q.unsqueeze(0).cuda() # to make t_q as 1Xseq_lenX300
+    # q = q.unsqueeze(0).cuda()
+    # t_q = t_q.unsqueeze(0).cuda() # to make t_q as 1Xseq_lenX300
 
     #packed_embedded_q = nn.utils.rnn.pack_padded_sequence(q, [q.shape[1]],batch_first=True)
     #packed_embedded_tq = nn.utils.rnn.pack_padded_sequence(t_q, [t_q.shape[1]],batch_first=True)
 
-    tq_lstm, _ = self.lstm1(t_q)
-    #tq_lstm, _ = self.lstm2(tq_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
+    # tq_lstm, _ = self.lstm1(t_q)
+    # #tq_lstm, _ = self.lstm2(tq_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
 
-    q_lstm, _ = self.lstm11(q)
-    #q_lstm, _ = self.lstm22(q_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
+    # q_lstm, _ = self.lstm11(q)
+    # #q_lstm, _ = self.lstm22(q_lstm) # output size of h_lstm is batchXseq_lenX300 ... so we need to
 
     #q_attn = self.attention_layer_q(q_lstm, q.shape[1])
     #tq_attn = self.attention_layer_q(tq_lstm, t_q.shape[1])
@@ -97,17 +97,17 @@ class ResidualBlock_LangAttention(nn.Module):
     
     #lang encode with attention
     #txt_conv = self.conv11( F.relu(self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)) ) * tq_attn.view(t_q.shape[0],-1,1,1)
-    txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
+    # txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
 
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
     #txt_conv = (self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1) ) 
     #txt_conv = self.conv1(x)
 
     if self.with_batchnorm:
-      out = F.relu(self.bn1(txt_conv))
+      out = F.relu(self.bn1(self.conv1(x)))
       out = self.bn2(self.conv2(out))
     else:
-      out = self.conv2(F.relu(txt_conv))
+      out = self.conv2(F.relu(self.conv1(x)))
     res = x if self.proj is None else self.proj(x)
     if self.with_residual:
       out = F.relu(res + out)
