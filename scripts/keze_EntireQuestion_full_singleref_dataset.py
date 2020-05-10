@@ -121,7 +121,7 @@ parser.add_argument('--checkpoint_every', default=10000, type=int)
 
 def main(args):
   if args.randomize_checkpoint_path == 1:
-    name, ext = os.path.splitext(args.checkpoint_path)
+    name, ext = os.path.splitext(args.checkpointcd .._path)
     num = random.randint(1, 1000000)
     args.checkpoint_path = '%s_%06d%s' % (name, num, ext)
 
@@ -731,7 +731,7 @@ if __name__ == '__main__':
   args.model_type = "PG+EE"
   args.num_iterations = 700000
   args.learning_rate = 1e-4
-  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_AttnEntireQuestion_full_singleref_dataset.pt"
+  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_EntireQuestion_full_singleref_dataset.pt"
   args.checkpoint_every = 10000
   args.train_refexp_h5 = data_dir +  "/train_refexps_singleObject.h5"
   args.train_features_h5 = data_dir +  "/train_features.h5"
