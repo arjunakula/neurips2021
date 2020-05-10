@@ -27,6 +27,20 @@ from iep.data import ClevrDataset, ClevrDataLoader, clevr_collate
 from iep.models import ModuleNet, Seq2Seq, LstmModel, CnnLstmModel, CnnLstmSaModel
 import copy
 
+#-------------------------------------------Keze's modification begin----------------------------------
+from polyaxon_client.tracking import get_data_paths, get_outputs_path
+import subprocess
+
+def trans_data(src, dst):
+    print('rsync dir "{}" -> "{}"'.format(src, dst))
+ 
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+ 
+    cmd_line = "rsync -a {0} {1}".format(src, dst)
+    subprocess.call(cmd_line.split())
+#-------------------------------------------Keze's modification end----------------------------------
+
 
 parser = argparse.ArgumentParser()
 
@@ -448,8 +462,10 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
           pg_optimizer.step()
 
       if t % args.record_loss_every == 0:
-        print(t, loss.data[0])
-        stats['train_losses'].append(loss.data[0])
+        #-------------------------------------------Keze's modification begin-----------------------------------
+        print(t, loss.data.item())
+        stats['train_losses'].append(loss.data.item())
+        #-------------------------------------------Keze's modification end----------------------------------
         stats['train_losses_ts'].append(t)
         if reward is not None:
           stats['train_rewards'].append(reward)
@@ -499,6 +515,12 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
           checkpoint[k] = v
         print('Saving checkpoint to %s' % args.checkpoint_path + '_' + str(t))
         torch.save(checkpoint, args.checkpoint_path + '_' + str(t))
+        #-------------------------------------------Keze's modification begin-----------------------------------
+        if not os.path.exists(os.path.join( get_outputs_path(), "checkpoints")):
+          os.mkdir(os.path.join( get_outputs_path(), "checkpoints"))
+
+        torch.save(checkpoint, os.path.join( get_outputs_path(), "checkpoints", str(t)))
+#-------------------------------------------Keze's modification end----------------------------------
         del checkpoint['program_generator_state']
         del checkpoint['execution_engine_state']
         del checkpoint['baseline_state']
@@ -688,22 +710,38 @@ def check_accuracy(args, program_generator, execution_engine, baseline_model, lo
 
 
 if __name__ == '__main__':
+
+#-------------------------------------------Keze's modification begin----------------------------------
+  nasroot_dir = get_data_paths()['data-pool']
+  data_dir = os.path.join( nasroot_dir, 'keze_data' ) 
+
+  src = 'keze_data/.vector_cache'
+  dst = './'
+  src = os.path.join(get_data_paths()['data-pool'], src)
+  dst = os.path.join(os.getcwd(), dst)
+  trans_data(src, dst)  
+
+
   args = parser.parse_args()
 
   #tiny config
-  args.program_generator_start_from = "./data/backup_models/baseline_18k_single_object_largeBatchSize/program_generator.pt_32000"
+  args.program_generator_start_from = data_dir + "/backup_models/baseline_18k_single_object_largeBatchSize/program_generator.pt_32000"
   args.train_execution_engine = 1
   args.train_program_generator = 0
   args.model_type = "PG+EE"
-  args.num_iterations = 250000
+  args.num_iterations = 700000
   args.learning_rate = 1e-4
-  args.checkpoint_path = "data/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_LSTMEncoderAttn_lang_attention_with_entire_question_lstm.pt"
+  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_AttnEntireQuestion_full_singleref_dataset.pt"
   args.checkpoint_every = 10000
-  args.train_refexp_h5 = "data/small_dataset/train_refexps.h5"
-  args.train_features_h5 = "data/train_features.h5"
-  args.val_refexp_h5 = "data/small_dataset/val_refexps.h5"
-  args.val_features_h5 = "data/val_features.h5"
-  args.vocab_json = "data/vocab.json"
+  args.train_refexp_h5 = data_dir +  "/train_refexps_singleObject.h5"
+  args.train_features_h5 = data_dir +  "/train_features.h5"
+  args.val_refexp_h5 = data_dir +  "/val_refexps_singleObject.h5"
+  args.val_features_h5 = data_dir +  "/val_features.h5"
+  args.vocab_json = data_dir +  "/vocab.json"
+
+#-------------------------------------------Keze's modification end----------------------------------
+
+  
   args.batch_size = 8
   args.feature_dim="1024,20,20"
 
