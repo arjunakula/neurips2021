@@ -121,7 +121,7 @@ parser.add_argument('--checkpoint_every', default=10000, type=int)
 
 def main(args):
   if args.randomize_checkpoint_path == 1:
-    name, ext = os.path.splitext(args.checkpointcd .._path)
+    name, ext = os.path.splitext(args.checkpoint_path)
     num = random.randint(1, 1000000)
     args.checkpoint_path = '%s_%06d%s' % (name, num, ext)
 
