@@ -303,6 +303,9 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
         competency_level = km+1
         break
 
+    #FIXME:
+    competency_level=2
+    
     for batch in train_loader:
       t += 1
 
@@ -325,12 +328,12 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
       curriculum_difficulty = curriculum_difficulty_1[filtered_indices[0]].view(-1)
 
       for idx in range(1,len(filtered_indices)):
-        refexps = torch.cat((refexps, refexps_1[filtered_indices[i]].view(-1,refexps_1.shape[1])), 0)
-        feats = torch.cat((feats, feats_1[filtered_indices[i]].view(-1,feats_1.shape[1],feats_1.shape[2],feats_1.shape[3])), 0)
-        answers = torch.cat((answers, answers_1[filtered_indices[i]].view(-1,answers_1.shape[1],answers_1.shape[2])), 0)
-        programs = torch.cat((programs, programs_1[filtered_indices[i]].view(-1,programs_1.shape[1])), 0)
-        image_id = torch.cat((image_id, image_id_1[filtered_indices[i]].view(-1)), 0)
-        curriculum_difficulty = torch.cat((curriculum_difficulty, curriculum_difficulty_1[filtered_indices[i]].view(-1)), 0)
+        refexps = torch.cat((refexps, refexps_1[filtered_indices[idx]].view(-1,refexps_1.shape[1])), 0)
+        feats = torch.cat((feats, feats_1[filtered_indices[idx]].view(-1,feats_1.shape[1],feats_1.shape[2],feats_1.shape[3])), 0)
+        answers = torch.cat((answers, answers_1[filtered_indices[idx]].view(-1,answers_1.shape[1],answers_1.shape[2])), 0)
+        programs = torch.cat((programs, programs_1[filtered_indices[idx]].view(-1,programs_1.shape[1])), 0)
+        image_id = torch.cat((image_id, image_id_1[filtered_indices[idx]].view(-1)), 0)
+        curriculum_difficulty = torch.cat((curriculum_difficulty, curriculum_difficulty_1[filtered_indices[idx]].view(-1)), 0)
         
       # refexps = refexps[filtered_indices]
       # feats = feats[filtered_indices]
