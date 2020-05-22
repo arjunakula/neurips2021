@@ -296,7 +296,7 @@ def train_loop(args, train_loader, train_len, val_loader, val_len):
   tic_time = time.time()
   toc_time = time.time()
   #linear_iterations = [5,5,5,5,5,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_5_epochs 
-  linear_iterations = [3,3,3,3,3,3,3,3,3,3,3,3,3,3] # CL_extension_for_AttnEntireQuestion_CL_3_epochs
+  linear_iterations = [2,2,2,2,2,2,2,2,2,2,3,3,5,5] # CL_extension_for_AttnEntireQuestion_CL_3_epochs
   #decay_iterations = [10,10,10,8,8,5,5,5,5,5,5,5,5,5] # CL_extension_for_AttnEntireQuestion_CL_annealing_10_to_5
   total_epochs_limit = sum(linear_iterations)
   #while t < args.num_iterations:
@@ -783,11 +783,11 @@ if __name__ == '__main__':
   args.model_type = "PG+EE"
   args.num_iterations = 500000
   args.learning_rate = 1e-4
-  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_CL_extension_for_AttnEntireQuestion_CL_3_epochs.pt"
+  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_CL_extension_for_AttnEntireQuestion_CL_3_epochs_sref_full.pt"
   args.checkpoint_every_epoch = 1
-  args.train_refexp_h5 = data_dir +  "/small_dataset/train_refexps.h5"
+  args.train_refexp_h5 = data_dir +  "/train_refexps_singleObject.h5"
   args.train_features_h5 = data_dir +  "/train_features.h5"
-  args.val_refexp_h5 = data_dir +  "/small_dataset/val_refexps.h5"
+  args.val_refexp_h5 = data_dir +  "/val_refexps_singleObject.h5"
   args.val_features_h5 = data_dir +  "/val_features.h5"
   args.vocab_json = data_dir +  "/vocab.json"
 
