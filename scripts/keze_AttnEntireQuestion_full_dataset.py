@@ -729,13 +729,13 @@ if __name__ == '__main__':
   args.train_execution_engine = 1
   args.train_program_generator = 0
   args.model_type = "PG+EE"
-  args.num_iterations = 700000
+  args.num_iterations = 450000
   args.learning_rate = 1e-4
-  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_AttnEntireQuestion_full_singleref_dataset.pt"
+  args.checkpoint_path = data_dir + "/run_fixedPG+EE_ref_singleObject_small/execution_engine_with_AttnEntireQuestion_full_dataset.pt"
   args.checkpoint_every = 10000
-  args.train_refexp_h5 = data_dir +  "/train_refexps_singleObject.h5"
+  args.train_refexp_h5 = data_dir +  "/train_refexps.h5"
   args.train_features_h5 = data_dir +  "/train_features.h5"
-  args.val_refexp_h5 = data_dir +  "/val_refexps_singleObject.h5"
+  args.val_refexp_h5 = data_dir +  "/val_refexps.h5"
   args.val_features_h5 = data_dir +  "/val_features.h5"
   args.vocab_json = data_dir +  "/vocab.json"
 
