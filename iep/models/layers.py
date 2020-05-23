@@ -43,7 +43,7 @@ class ResidualBlock(nn.Module):
 
 #FIXME: x: 1X128X20X20, q:1X50, W:50X128 ... Wq-> 1X128 --> 1X128X1X1
 class ResidualBlock_LangAttention(nn.Module):
-  def __init__(self, in_dim, out_dim=None, with_residual=True, with_batchnorm=True, q_dim=300, tq_dim = 300):
+  def __init__(self, in_dim, out_dim=None, with_residual=True, with_batchnorm=True, q_dim=300, tq_dim = 428):
     if out_dim is None:
       out_dim = in_dim
     super(ResidualBlock_LangAttention, self).__init__()
@@ -51,6 +51,8 @@ class ResidualBlock_LangAttention(nn.Module):
 
     self.lstm1 = nn.LSTM(tq_dim, in_dim, bidirectional=True, batch_first=True)
     self.lstm2 = nn.GRU(in_dim*2, int(in_dim/2), bidirectional=True, batch_first=True)
+
+    self.linearizeImage = nn.Linear(128*20*20, 128)
 
     self.lstm11 = nn.LSTM(q_dim, in_dim, bidirectional=True, batch_first=True)
     #self.lstm11 = nn.LSTM(q_dim, int(in_dim/2), bidirectional=True, batch_first=True)
@@ -78,7 +80,16 @@ class ResidualBlock_LangAttention(nn.Module):
   #expect t_q to be seq_len X 300, where 300 is word2vec embedding of each word.
   def forward(self, x, q, t_q):
     q = q.unsqueeze(0).cuda()
-    t_q = t_q.unsqueeze(0).cuda() # to make t_q as 1Xseq_lenX300
+    #t_q = t_q.unsqueeze(0).cuda() # to make t_q as 1Xseq_lenX300
+
+    x_flat = torch.flatten(x)
+    CZB_imageAttention = F.relu(self.linearizeImage(x_flat))
+
+    t_q2 = torch.rand(t_q.shape[0], t_q.shape[1]+CZB_imageAttention.shape[0])
+    t_q2[:,0:t_q.shape[1]] = t_q
+    t_q2[:,t_q.shape[1]:t_q.shape[1]+CZB_imageAttention.shape[0]] = CZB_imageAttention 
+    t_q = t_q2
+    t_q = t_q.unsqueeze(0).cuda()
 
     #packed_embedded_q = nn.utils.rnn.pack_padded_sequence(q, [q.shape[1]],batch_first=True)
     #packed_embedded_tq = nn.utils.rnn.pack_padded_sequence(t_q, [t_q.shape[1]],batch_first=True)
