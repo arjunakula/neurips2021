@@ -19,6 +19,10 @@ import iep.programs
 import torchtext
 import re
 
+import pickle
+import os.path
+from os import path
+
 
 class ConcatBlock(nn.Module):
   def __init__(self, dim, with_residual=True, with_batchnorm=True):
@@ -271,6 +275,21 @@ class ModuleNet(nn.Module):
             continue
           txt_vec_list.append(torch.Tensor(self.glove[wrd]).view(1,-1))
 
+          if(path.exists('/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl')):
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","rb")
+            glove_dict = pickle.load(fp)
+            fp.close()
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+            glove_dict[str(self.glove[wrd])] = wrd
+            pickle.dump(glove_dict,fp)
+            fp.close()
+          else:
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+            glove_dict[str(self.glove[wrd])] = wrd
+            pickle.dump(glove_dict,fp)
+            fp.close()
+          
+
         for i_i in range(0,len(txt_vec_list)):
           if(i_i == 0):
             txt_inp = txt_vec_list[i_i]
@@ -279,6 +298,20 @@ class ModuleNet(nn.Module):
         
         if(len(txt_vec_list) == 0):
           module_inputs.append(torch.Tensor(self.glove['NULL']).view(1,-1))
+          if(path.exists('/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl')):
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","rb")
+            glove_dict = pickle.load(fp)
+            fp.close()
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+            glove_dict[str(self.glove['NULL'])] = 'NULL'
+            pickle.dump(glove_dict,fp)
+            fp.close()
+          else:
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+            glove_dict[str(self.glove['NULL'])] = 'NULL'
+            pickle.dump(glove_dict,fp)
+            fp.close()
+          
         else:  
           module_inputs.append(txt_inp)  # shape of entire_txt_inp is seq_lenX300
         
@@ -293,6 +326,20 @@ class ModuleNet(nn.Module):
         if(len(wrd) == 0):
           continue
         total_txt_vec_list.append(torch.Tensor(self.glove[wrd]).view(1,-1))
+        if(path.exists('/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl')):
+          fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","rb")
+          glove_dict = pickle.load(fp)
+          fp.close()
+          fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+          glove_dict[str(self.glove[wrd])] = wrd
+          pickle.dump(glove_dict,fp)
+          fp.close()
+        else:
+          fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+          glove_dict[str(self.glove[wrd])] = wrd
+          pickle.dump(glove_dict,fp)
+          fp.close()
+        glove_dict[str(self.glove[wrd])] = wrd
       
       for i_i in range(0,len(total_txt_vec_list)):
         if(i_i == 0):
@@ -302,10 +349,24 @@ class ModuleNet(nn.Module):
 
       if(len(total_txt_vec_list) == 0):
         module_inputs.append(torch.Tensor(self.glove['NULL']).view(1,-1))
+         if(path.exists('/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl')):
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","rb")
+            glove_dict = pickle.load(fp)
+            fp.close()
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+            glove_dict[str(self.glove['NULL'])] = 'NULL'
+            pickle.dump(glove_dict,fp)
+            fp.close()
+          else:
+            fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/glove_dict.pkl","wb")
+            glove_dict[str(self.glove['NULL'])] = 'NULL'
+            pickle.dump(glove_dict,fp)
+            fp.close()
       else:
         module_inputs.append(entire_txt_inp) # shape of entire_txt_inp is seq_lenX300
 
     module_output = module(*module_inputs)
+
     return module_output, j
 
 
