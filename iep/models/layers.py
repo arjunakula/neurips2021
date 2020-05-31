@@ -92,6 +92,23 @@ class ResidualBlock_LangAttention(nn.Module):
     q_attn = self.attention_layer_q(q_lstm, q.shape[1])
     tq_attn = self.attention_layer_q(tq_lstm, t_q.shape[1])
 
+    import pickle
+    import os.path
+    from os import path
+    tmp_store = self.conv1(x) * q_attn.view(q.shape[0],-1,1,1)
+    if(path.exists('/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/filter.pkl')):
+      fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/filter.pkl","rb")
+      store_filt = pickle.load(fp)
+      fp.close()
+      fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/filter.pkl","wb")
+      store_filt.append({'max_filter':tmp_store.squeeze()[10].cpu().detach().numpy()})
+      pickle.dump(store_filt,fp)
+      fp.close()
+    else:
+      fp = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/filter.pkl","wb")
+      pickle.dump([{'max_filter':tmp_store.squeeze()[10].cpu().detach().numpy()}], fp)
+      fp.close()
+
     #lang encode without attention
     #txt_conv = self.conv11( F.relu(self.conv1(x) * q_lstm[:,-1].view(q.shape[0],-1,1,1)) ) * tq_lstm[:,-1].view(t_q.shape[0],-1,1,1)
     

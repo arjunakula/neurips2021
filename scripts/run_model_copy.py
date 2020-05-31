@@ -268,8 +268,8 @@ def run_our_model_batch(args, program_generator, execution_engine, loader, dtype
   vis_cnt = 0
   for batch in loader:
     vis_cnt = vis_cnt+1
-    if(vis_cnt >= 10):
-      exit()
+    if(vis_cnt < 0 and vis_cnt >= 1):
+      continue
     refexps, images, feats, answers, programs, program_lists, image_id= batch
 
     if(path.exists('/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/feats.pkl')):
