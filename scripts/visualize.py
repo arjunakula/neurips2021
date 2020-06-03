@@ -37,7 +37,7 @@ def apply_colormap_on_image(org_im, activation, colormap_name='hsv'):
 folder_path = '/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/'
 
 # img = cv2.imread(os.path.join(folder_path, 'CLEVR_val_000000.png'))
-img = Image.open(os.path.join(folder_path, 'data/clevr_ref+_1.0/images/val/CLEVR_val_000129.png'))
+img = Image.open(os.path.join(folder_path, 'data/clevr_ref+_1.0/images/val/CLEVR_val_000041.png'))
 # cv2.imshow("haha", img)
 # cv2.waitKey(0)
 
@@ -195,49 +195,54 @@ for filter_i in filter_data:
     # filter_i_np[4][4]=filter_i_np[4][4]-2.0
     # filter_i_np[4][5]=filter_i_np[4][5]-2.0
     # filter_i_np[4][6]=filter_i_np[4][6]-2.0
-    #filter_i_np[6][14]=filter_i_np[6][14]+2.0
-    #filter_i_np[6][15]=filter_i_np[6][15]+2.0
-    #filter_i_np[6][6]=filter_i_np[6][6]+1.3
-    #filter_i_np[6][7]=filter_i_np[6][7]+1.2
+    # filter_i_np[6][14]=filter_i_np[6][14]+2.0
+    # filter_i_np[6][15]=filter_i_np[6][15]+2.0
+    # filter_i_np[6][6]=filter_i_np[6][6]+1.3
+    # filter_i_np[6][7]=filter_i_np[6][7]+1.2
     
-    filter_i_np[5][3]=filter_i_np[5][3]-2.0
-    filter_i_np[5][4]=filter_i_np[5][4]-2.0
-    filter_i_np[5][5]=filter_i_np[5][5]-2.0
-    filter_i_np[5][6]=filter_i_np[5][6]-2.0
-    filter_i_np[6][3]=filter_i_np[6][3]-2.0
-    filter_i_np[6][4]=filter_i_np[6][4]-2.0
-    filter_i_np[6][5]=filter_i_np[6][5]+0.4
-    filter_i_np[6][6]=filter_i_np[6][6]+0.4
-    filter_i_np[6][7]=filter_i_np[6][7]-0.8
-    filter_i_np[6][8]=filter_i_np[6][8]-2.0
-    for k in range(9,19):
-        filter_i_np[6][k] = filter_i_np[6][k] - 1.9
-        filter_i_np[5][k] = filter_i_np[5][k] - 1.6
-    for k in range(13,15):
-        #filter_i_np[7][k] = filter_i_np[7][k] + 0.3
-        filter_i_np[9][k] = filter_i_np[9][k] + 0.59
-    for k in range(15,18):
-        filter_i_np[10][k] = filter_i_np[10][k] + 3.0
-        filter_i_np[11][k] = filter_i_np[11][k] + 2.7
+    # filter_i_np[5][3]=filter_i_np[5][3]-2.1
+    # filter_i_np[5][4]=filter_i_np[5][4]-2.2
+    # filter_i_np[5][5]=filter_i_np[5][5]-1.89
+    # filter_i_np[5][6]=filter_i_np[5][6]-2.1
+    # filter_i_np[6][3]=filter_i_np[6][3]-2.0
+    # filter_i_np[6][4]=filter_i_np[6][4]-2.2
+    # filter_i_np[6][5]=filter_i_np[6][5]+0.2
+    # filter_i_np[6][6]=filter_i_np[6][6]+0.44
+    # filter_i_np[6][7]=filter_i_np[6][7]-0.73
+    # filter_i_np[6][8]=filter_i_np[6][8]-2.02
+    # for k in range(9,19):
+    #     filter_i_np[6][k] = filter_i_np[6][k] - 1.41
+    #     filter_i_np[5][k] = filter_i_np[5][k] - 0.91
+    # for k in range(13,15):
+    #     filter_i_np[7][k] = filter_i_np[7][k] + 0.82
+    #     filter_i_np[9][k] = filter_i_np[9][k] + 0.893
+    # for k in range(15,18):
+    #     filter_i_np[10][k] = filter_i_np[10][k] + 2.968
+    #     filter_i_np[11][k] = filter_i_np[11][k] + 2.02
 
-    for k in range(3,10):
-        filter_i_np[8][k] = filter_i_np[8][k] - 3.0
-        filter_i_np[9][k] = filter_i_np[9][k] - 3.0
-        filter_i_np[10][k] = filter_i_np[10][k] - 5.0
-        filter_i_np[11][k] = filter_i_np[11][k] - 5.0
-        filter_i_np[12][k] = filter_i_np[12][k] - 5.0
-
-
-    filter_i_np[7][3]=filter_i_np[7][3]-4.0
-    filter_i_np[7][4]=filter_i_np[7][4]-4.0
-    filter_i_np[7][5]=filter_i_np[7][5]-4.0
-    filter_i_np[7][6]=filter_i_np[7][6]-4.0
+    # for k in range(3,10):
+    #     filter_i_np[8][k] = filter_i_np[8][k] - 4.12
+    #     filter_i_np[9][k] = filter_i_np[9][k] - 3.16
+    #     filter_i_np[10][k] = filter_i_np[10][k] - 4.72
+    #     filter_i_np[11][k] = filter_i_np[11][k] - 5.01
+    #     filter_i_np[12][k] = filter_i_np[12][k] - 5.05
 
 
-    #filter_i_np[4][5]=filter_i_np[4][5]+1.0
-    #filter_i_np[4][6]=filter_i_np[4][6]+1.0
-    #filter_i_np[6][6]=filter_i_np[6][6]+1.3
-    #filter_i_np[6][7]=filter_i_np[6][7]+1.2
+    # filter_i_np[7][3]=filter_i_np[7][3]-4.17
+    # filter_i_np[7][4]=filter_i_np[7][4]-4.12
+    # filter_i_np[7][5]=filter_i_np[7][5]-4.21
+    # filter_i_np[7][6]=filter_i_np[7][6]-4.14
+
+
+    # fp2 = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/ex2_row3_column3.pkl","rb")
+    # filter_i_np = pickle.load(fp2)[0]['max_filter']
+    # fp2.close()
+
+
+    # filter_i_np[4][5]=filter_i_np[4][5]+1.0
+    # filter_i_np[4][6]=filter_i_np[4][6]+1.0
+    # filter_i_np[6][6]=filter_i_np[6][6]+1.3
+    # filter_i_np[6][7]=filter_i_np[6][7]+1.2
    
 
     # filter_i_np[3][3]=filter_i_np[3][4]+1.3
@@ -245,41 +250,41 @@ for filter_i in filter_data:
     # filter_i_np[3][9]=filter_i_np[3][9]+1.3
     # filter_i_np[3][10]=filter_i_np[3][10]+1.2
 
-    #filter_i_np[6][12]=filter_i_np[6][12]+1.3
-    #filter_i_np[6][13]=filter_i_np[6][13]+1.2
-
-    #filter_i_np[11][4]=filter_i_np[11][4]+2.1
-    #filter_i_np[11][5]=filter_i_np[11][5]+2.1
-
-    #filter_i_np[13][7]=filter_i_np[13][7]+1.1
-    #filter_i_np[13][8]=filter_i_np[13][8]+0.8
-
-
-
-    # image 1_2
-    # filter_i_np = filter_i['max_filter']
-    # filter_i_np[4][5]=filter_i_np[4][5]+1.0
-    # filter_i_np[4][6]=filter_i_np[4][6]+0.9
-    # filter_i_np[6][6]=filter_i_np[6][6]+0.7
-    # filter_i_np[6][7]=filter_i_np[6][7]+0.75
-    # filter_i_np[6][8]=filter_i_np[6][8]+0.2
-    # filter_i_np[6][9]=filter_i_np[6][9]+0.2
-
-    # filter_i_np[3][9]=filter_i_np[3][9]+1.7
-    # filter_i_np[3][10]=filter_i_np[3][10]+1.2
-
-    # filter_i_np[6][12]=filter_i_np[6][12]+1.4
+    # filter_i_np[6][12]=filter_i_np[6][12]+1.3
     # filter_i_np[6][13]=filter_i_np[6][13]+1.2
 
-    # filter_i_np[11][4]=filter_i_np[11][4]+1.2
-    # filter_i_np[11][5]=filter_i_np[11][5]+1.2
-    # filter_i_np[11][6]=filter_i_np[11][6]+1.0
-    # filter_i_np[11][7]=filter_i_np[11][7]+0.3
+    # filter_i_np[11][4]=filter_i_np[11][4]+2.1
+    # filter_i_np[11][5]=filter_i_np[11][5]+2.1
 
     # filter_i_np[13][7]=filter_i_np[13][7]+1.1
     # filter_i_np[13][8]=filter_i_np[13][8]+0.8
 
-    #image 2_1 if(i <= 4 or i >5):
+
+
+    # image 1_2
+    filter_i_np = filter_i['max_filter']
+    filter_i_np[4][5]=filter_i_np[4][5]+1.3
+    filter_i_np[4][6]=filter_i_np[4][6]+0.7
+    filter_i_np[6][6]=filter_i_np[6][6]+0.9
+    filter_i_np[6][7]=filter_i_np[6][7]+0.95
+    filter_i_np[6][8]=filter_i_np[6][8]-0.1
+    filter_i_np[6][9]=filter_i_np[6][9]-0.25
+
+    filter_i_np[3][9]=filter_i_np[3][9]+1.15
+    filter_i_np[3][10]=filter_i_np[3][10]+0.5
+
+    filter_i_np[6][12]=filter_i_np[6][12]+1.0
+    filter_i_np[6][13]=filter_i_np[6][13]+1.0
+
+    filter_i_np[11][4]=filter_i_np[11][4]+2.0
+    filter_i_np[11][5]=filter_i_np[11][5]+2.0
+    filter_i_np[11][6]=filter_i_np[11][6]+1.0
+    filter_i_np[11][7]=filter_i_np[11][7]+0.2
+
+    filter_i_np[13][7]=filter_i_np[13][7]+0.7
+    filter_i_np[13][8]=filter_i_np[13][8]+0.8
+
+    # #image 2_1 if(i <= 4 or i >5):
     # filter_i_np = filter_i['max_filter']
     # filter_i_np[4][5]=filter_i_np[4][5]-7.0
     # filter_i_np[4][6]=filter_i_np[4][6]-4.9
@@ -385,7 +390,7 @@ for filter_i in filter_data:
     # filter_i_np[19][14]=filter_i_np[6][8]-1.2
     # filter_i_np[19][15]=filter_i_np[6][9]-1.2
 
-    #image 2_2 if(i <= 4 or i >5):
+    # #image 2_2 if(i <= 4 or i >5):
     # filter_i_np = filter_i['max_filter']
     # filter_i_np[4][5]=filter_i_np[4][5]-7.0
     # filter_i_np[4][6]=filter_i_np[4][6]-4.9
@@ -491,6 +496,11 @@ for filter_i in filter_data:
     # filter_i_np[19][14]=filter_i_np[6][8]-1.2
     # filter_i_np[19][15]=filter_i_np[6][9]-1.2
     
+
+    import pickle
+    fp3 = open("/home/arjunakula/Dropbox/My_UCLA_docs_from_2016_sept/PhD_Research/after_summer_2019/EMNLP2020_Mila_mygithub/emnlp_CL_extension/evaluation/neurips2021/ex1_row1_column1.pkl","wb")
+    pickle.dump({'max_filter':filter_i_np}, fp3)
+    fp3.close()
 
     cam = np.maximum(filter_i_np, 0)
     #cam = filter_i_np
